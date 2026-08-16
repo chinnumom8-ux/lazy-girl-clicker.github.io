@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lazy Girl Clicker: Lo-Fi Edition</title>
+    <style>
+        :root {
+            /* Lofi RPG Light Purple Lavender & Baby Blue Palette */
+            --night-indigo: #2d2447;
+            --lavender-deep: #4d3d70;
+            --lavender-main: #b8a6e8;
+            --lavender-soft: #ddd2f8;
+            --baby-blue: #9fd2f6;
+            --baby-blue-light: #e4f2fd;
+            --periwinkle: #7e94e6;
+            --cloud-white: #f8f7fe;
+            --cloud-shadow: #e5ddf5;
+            --blush-pink: #f7bfd8;
+            --mint-glow: #9ee3cc;
+            --starlight-gold: #fde28e;
+            --lofi-ink: #32284b;
+
+            --font-display: -apple-system, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+            --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--lofi-ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(228, 242, 253, 0.45), transparent 42%),
+                radial-gradient(circle at 82% 12%, rgba(184, 166, 232, 0.35), transparent 38%),
+                linear-gradient(160deg, #261e3d 0%, #3e315e 45%, #6a578e 75%, #9fd2f6 130%);
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            background: var(--cloud-white);
+            border-radius: 32px;
+            padding: 26px 22px 22px;
+            box-shadow: 0 30px 60px rgba(32, 22, 54, 0.38), 0 2px 0 rgba(255, 255, 255, 0.75) inset;
+            border: 2px solid rgba(221, 210, 248, 0.7);
+            overflow: visible;
+        }
+
+        .sound-toggle-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 2px;
+        }
+
+        .eyebrow {
+            font-family: var(--font-display);
+            font-size: 12px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--periwinkle);
+            font-weight: 700;
+            opacity: 0.9;
+            margin: 0;
+            text-align: center;
+        }
+
+        .sound-btn {
+            position: absolute;
+            right: 0;
+            top: -4px;
+            background: var(--cloud-shadow);
+            border: 1px solid rgba(184, 166, 232, 0.4);
+            border-radius: 12px;
+            font-size: 13px;
+            padding: 3px 7px;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+
+        .sound-btn:hover {
+            transform: scale(1.08);
+            background: var(--baby-blue-light);
+        }
+
+        .title {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+            margin: 4px 0 16px;
+            color: var(--night-indigo);
+        }
+
+        .energy-bar {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .energy-value {
+            font-family: var(--font-display);
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--periwinkle);
+            line-height: 1;
+        }
+
+        .energy-label {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--lavender-deep);
+            opacity: 0.75;
+        }
+
+        .stage {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin: 6px 0 8px;
+        }
+
+        .character {
+            width: 220px;
+            height: 200px;
+            cursor: pointer;
+            animation: idleSway 4.5s ease-in-out infinite;
+            transform-origin: 50% 90%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .character:focus-visible {
+            outline: 3px solid var(--baby-blue);
+            outline-offset: 6px;
+            border-radius: 24px;
+        }
+
+        .character.tapped {
+            animation: tapBounce 0.45s ease-out;
+        }
+
+        .tap-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--lavender-deep);
+            opacity: 0.65;
+            margin: 0 0 12px;
+        }
+
+        .float-text {
+            position: absolute;
+            top: 30%;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--baby-blue);
+            text-shadow: 0 2px 8px rgba(126, 148, 230, 0.45);
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        .dialogue-bubble {
+            position: absolute;
+            top: 74px;
+            right: 8px;
+            max-width: 170px;
+            background: white;
+            color: var(--lofi-ink);
+            border: 1.5px solid var(--baby-blue-light);
+            font-size: 13px;
+            line-height: 1.35;
+            padding: 10px 12px;
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(45, 36, 71, 0.18);
+            opacity: 0;
+            transform: translateY(6px) scale(0.96);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .dialogue-bubble::after {
+            content: "";
+            position: absolute;
+            left: 22px;
+            bottom: -7px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            transform: rotate(45deg);
+            border-radius: 3px;
+            border-right: 1.5px solid var(--baby-blue-light);
+            border-bottom: 1.5px solid var(--baby-blue-light);
+        }
+
+        .dialogue-bubble.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .unlocks {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .unlock-card {
+            background: var(--cloud-shadow);
+            border: 1.5px solid rgba(184, 166, 232, 0.3);
+            border-radius: 16px;
+            padding: 10px 6px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .unlock-card:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(126, 148, 230, 0.25);
+        }
+
+        .unlock-card:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .unlock-card.owned {
+            background: linear-gradient(135deg, #8baee8, #a3d5f7);
+            border-color: #8baee8;
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(139, 174, 232, 0.3);
+        }
+
+        .unlock-card.owned .unlock-label,
+        .unlock-card.owned .unlock-status {
+            color: #1e2646;
+        }
+
+        .unlock-emoji {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .unlock-label {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--night-indigo);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .unlock-status {
+            font-size: 10px;
+            color: var(--lavender-deep);
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+
+        .disc-widget {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, var(--night-indigo), #3d325c);
+            border: 1.5px solid rgba(159, 210, 246, 0.35);
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(35, 25, 55, 0.25);
+        }
+
+        .disc-widget.visible {
+            display: flex;
+        }
+
+        .disc {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background:
+                radial-gradient(circle at center, var(--baby-blue-light) 0 4px, transparent 4.5px),
+                repeating-radial-gradient(circle at center, #2a2240 0, #2a2240 2px, #1a142c 3px, #1a142c 5px);
+            box-shadow: 0 0 0 3px var(--baby-blue);
+            animation: spin 3.5s linear infinite;
+            cursor: pointer;
+        }
+
+        .disc.paused {
+            animation-play-state: paused !important;
+        }
+
+        .disc.pulse {
+            animation: spin 3.5s linear infinite, discPulse 0.4s ease-out;
+        }
+
+        .track-info {
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .track-title {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--cloud-white);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 11px;
+            color: var(--baby-blue);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(159, 210, 246, 0.4);
+            color: var(--starlight-gold);
+            border-radius: 12px;
+            height: 28px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 700;
+            transition: transform 0.12s ease, background 0.12s ease;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.06);
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        @keyframes idleSway {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-6px) rotate(-1.2deg);
+            }
+        }
+
+        @keyframes tapBounce {
+            0% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(0.88);
+            }
+
+            60% {
+                transform: scale(1.06);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.8);
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-56px) scale(1.1);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes discPulse {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .character,
+            .disc {
+                animation: none !important;
+            }
+
+            .character.tapped,
+            .float-text,
+            .disc.pulse {
+                animation: none !important;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .character {
+                width: 180px;
+                height: 164px;
+            }
+
+            .energy-value {
+                font-size: 34px;
+            }
+
+            .unlocks {
+                gap: 6px;
+            }
+
+            .unlock-card {
+                padding: 8px 4px 6px;
+            }
+
+            .unlock-label {
+                font-size: 10px;
+            }
+
+            .unlock-status {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hidden background YouTube Audio Player -->
+    <div id="ytContainer"
+        style="position: fixed; top: -9999px; left: -9999px; width: 100px; height: 100px; pointer-events: none; opacity: 0.001;">
+        <div id="ytPlayer"></div>
+    </div>
+
+    <main class="scene">
+        <div class="sound-toggle-bar">
+            <p class="eyebrow">lazy girl clicker</p>
+            <button class="sound-btn" id="soundToggleBtn" type="button" aria-label="Toggle sound">🔊</button>
+        </div>
+
+        <h1 class="title">do (almost) nothing</h1>
+
+        <div class="energy-bar">
+            <span class="energy-value" id="energyValue">0</span>
+            <span class="energy-label">energy</span>
+        </div>
+
+        <div class="stage">
+            <svg class="character" id="character" viewBox="0 0 240 220" role="button" tabindex="0"
+                aria-label="Tap to earn energy">
+                <!-- Floor soft shadow -->
+                <ellipse cx="120" cy="198" rx="104" ry="18" fill="var(--cloud-shadow)"></ellipse>
+
+                <!-- 1. Back Hair (Fluffy background hair behind head & shoulders) -->
+                <path d="M50,105
+                 C44,52 68,26 120,26
+                 C172,26 196,52 190,105
+                 C186,140 192,165 194,185
+                 C180,188 165,172 160,148
+                 C145,154 95,154 80,148
+                 C75,172 60,188 46,185
+                 C48,165 54,140 50,105 Z" fill="var(--lavender-deep)"></path>
+
+                <!-- Cute Side Twin Buns -->
+                <ellipse cx="58" cy="46" rx="22" ry="22" fill="var(--lavender-deep)"></ellipse>
+                <ellipse cx="182" cy="46" rx="22" ry="22" fill="var(--lavender-deep)"></ellipse>
+                <!-- Baby blue hair bows / ribbons -->
+                <ellipse cx="66" cy="58" rx="7" ry="5" fill="var(--baby-blue)" transform="rotate(-25 66 58)"></ellipse>
+                <ellipse cx="174" cy="58" rx="7" ry="5" fill="var(--baby-blue)" transform="rotate(25 174 58)"></ellipse>
+
+                <!-- 2. Cozy Blanket / Body -->
+                <path d="M30,200
+                 C30,135 62,115 120,115
+                 C178,115 210,135 210,200
+                 C210,212 195,216 120,216
+                 C45,216 30,212 30,200 Z" fill="var(--lavender-soft)"></path>
+                <path d="M30,200 C62,190 178,190 210,200" fill="none" stroke="var(--lavender-main)" stroke-width="4"
+                    stroke-linecap="round"></path>
+                <path d="M60,175 C85,160 155,160 180,175" fill="none" stroke="var(--lavender-main)" stroke-width="3"
+                    stroke-linecap="round" opacity="0.6"></path>
+
+                <!-- Hands / Sleeves -->
+                <circle cx="70" cy="155" r="14" fill="#fbdac8"></circle>
+                <circle cx="170" cy="155" r="14" fill="#fbdac8"></circle>
+
+                <!-- 3. Face & Ears -->
+                <circle cx="74" cy="102" r="8" fill="#fbdac8"></circle>
+                <circle cx="166" cy="102" r="8" fill="#fbdac8"></circle>
+                <ellipse cx="120" cy="102" rx="44" ry="42" fill="#fbdac8"></ellipse>
+
+                <!-- Peaceful Sleeping Eyes -->
+                <path d="M93,102 Q103,112 113,102" fill="none" stroke="var(--night-indigo)" stroke-width="3.5"
+                    stroke-linecap="round"></path>
+                <path d="M127,102 Q137,112 147,102" fill="none" stroke="var(--night-indigo)" stroke-width="3.5"
+                    stroke-linecap="round"></path>
+
+                <!-- Sleepy Smile -->
+                <path d="M112,118 Q120,124 128,118" fill="none" stroke="var(--night-indigo)" stroke-width="3"
+                    stroke-linecap="round"></path>
+
+                <!-- Rosy Blush Cheeks -->
+                <ellipse cx="88" cy="112" rx="10" ry="6" fill="var(--blush-pink)" opacity="0.85"></ellipse>
+                <ellipse cx="152" cy="112" rx="10" ry="6" fill="var(--blush-pink)" opacity="0.85"></ellipse>
+
+                <!-- 4. Full Front Bangs & Framing Locks (100% full hair covering head) -->
+                <path d="M66,74
+                 C66,32 174,32 174,74
+                 C174,96 170,132 163,142
+                 C158,145 154,130 152,108
+                 C144,94 138,98 132,88
+                 C126,95 114,95 108,88
+                 C102,98 96,94 88,108
+                 C86,130 82,145 77,142
+                 C70,132 66,96 66,74 Z" fill="var(--lavender-deep)"></path>
+
+                <!-- Hair Gloss Highlight -->
+                <path d="M86,52 C106,40 134,40 154,52" fill="none" stroke="var(--lavender-main)" stroke-width="4"
+                    stroke-linecap="round" opacity="0.75"></path>
+
+                <!-- Cute Star Hairclip -->
+                <path
+                    d="M80,68 L82.5,73.5 L88.5,74.5 L84,78.5 L85.5,84.5 L80,81.5 L74.5,84.5 L76,78.5 L71.5,74.5 L77.5,73.5 Z"
+                    fill="var(--starlight-gold)"></path>
+
+                <!-- Floating Zzz Sleep Particles -->
+                <text x="178" y="44" font-family="var(--font-display)" font-size="16" font-weight="800"
+                    fill="var(--baby-blue)" opacity="0.9">z</text>
+                <text x="194" y="28" font-family="var(--font-display)" font-size="13" font-weight="800"
+                    fill="var(--lavender-main)" opacity="0.8">z</text>
+                <text x="206" y="14" font-family="var(--font-display)" font-size="10" font-weight="800"
+                    fill="var(--baby-blue-light)" opacity="0.7">z</text>
+            </svg>
+
+            <div class="dialogue-bubble" id="dialogue"></div>
+        </div>
+
+        <p class="tap-hint">tap her to earn energy</p>
+
+        <div class="unlocks" id="unlocks">
+            <button class="unlock-card" data-id="snacks" type="button">
+                <span class="unlock-emoji">🍫</span>
+                <span class="unlock-label">Snacks</span>
+                <span class="unlock-status">15 energy</span>
+            </button>
+            <button class="unlock-card" data-id="music1" type="button">
+                <span class="unlock-emoji">🎵</span>
+                <span class="unlock-label">Music 1</span>
+                <span class="unlock-status">40 energy</span>
+            </button>
+            <button class="unlock-card" data-id="music2" type="button">
+                <span class="unlock-emoji">🎶</span>
+                <span class="unlock-label">Music 2</span>
+                <span class="unlock-status">90 energy</span>
+            </button>
+            <button class="unlock-card" data-id="music3" type="button">
+                <span class="unlock-emoji">🎧</span>
+                <span class="unlock-label">Music 3</span>
+                <span class="unlock-status">130 energy</span>
+            </button>
+            <button class="unlock-card" data-id="music4" type="button">
+                <span class="unlock-emoji">🎸</span>
+                <span class="unlock-label">Music 4</span>
+                <span class="unlock-status">160 energy</span>
+            </button>
+            <button class="unlock-card" data-id="music5" type="button">
+                <span class="unlock-emoji">🦇</span>
+                <span class="unlock-label">Music 5</span>
+                <span class="unlock-status">210 energy</span>
+            </button>
+        </div>
+
+        <div class="disc-widget" id="discWidget" role="region" aria-label="Music Player">
+            <div class="disc" id="disc" role="button" tabindex="0" aria-label="Toggle Play/Pause"></div>
+            <div class="track-info">
+                <div class="track-title" id="trackTitle">Maula Mere Maula</div>
+                <div class="track-artist" id="trackArtist">Mithoon and roopkumar Rathod</div>
+            </div>
+            <div class="player-controls">
+                <button class="control-btn" id="playPauseBtn" type="button" aria-label="Play or Pause">⏸</button>
+                <button class="control-btn" id="nextTrackBtn" type="button" aria-label="Next Track">next ▸</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            "use strict";
+
+            var STORAGE_KEY = "lazyGirlClicker.v2";
+
+            /* --- Exact YouTube Music Tracks Configuration --- */
+            var TRACKS = [
+                { id: "music1", videoId: "l5sgIqzlPXc", title: "Maula Mere Maula", artist: "Mithoon and roopkumar Rathod" },
+                { id: "music2", videoId: "j18MRhEfmPk", title: "Ishqa Ve", artist: "Zeeshan Ali" },
+                { id: "music3", videoId: "RHcnVLbl2Z4", title: "Khairiyat", artist: "Arijit Singh" },
+                { id: "music4", videoId: "NAkQVL61BRI", title: "Raga of Revenge", artist: "anirudh Ravichandran" },
+                { id: "music5", videoId: "xnP7qKxwzjg", title: "Dracula", artist: "Tame Impala" }
+            ];
+
+            var UNLOCKS = [
+                {
+                    id: "snacks",
+                    cost: 15,
+                    dialogues: [
+                        "Ooh, sneaked a cookie.",
+                        "Snack break, don't judge me.",
+                        "Crumbs are a lifestyle."
+                    ]
+                },
+                {
+                    id: "music1",
+                    cost: 40,
+                    dialogues: [
+                        "Now playing: Maula Mere Maula ~",
+                        "Mithoon & Roopkumar soulful vibes.",
+                        "Pure serenity in the air."
+                    ]
+                },
+                {
+                    id: "music2",
+                    cost: 90,
+                    dialogues: [
+                        "Ishqa Ve by Zeeshan Ali on rotation!",
+                        "Feeling the acoustic soulful beats.",
+                        "Vibes just got 10x cozier."
+                    ]
+                },
+                {
+                    id: "music3",
+                    cost: 130,
+                    dialogues: [
+                        "Khairiyat by Arijit Singh playing softly ~",
+                        "Heartfelt tunes to relax to.",
+                        "Horizontal listening perfection."
+                    ]
+                },
+                {
+                    id: "music4",
+                    cost: 160,
+                    dialogues: [
+                        "Raga of Revenge by Anirudh unlocked!",
+                        "Anirudh energetic beats filling the room.",
+                        "Power-nap soundtrack activated."
+                    ]
+                },
+                {
+                    id: "music5",
+                    cost: 210,
+                    dialogues: [
+                        "Dracula by Tame Impala spinning now!",
+                        "Psychedelic 8D bliss.",
+                        "Ultimate lazy girl soundtrack complete!"
+                    ]
+                }
+            ];
+
+            /* --- Web Audio Sound Effects (Tap & Unlock) --- */
+            var SoundEffects = (function () {
+                var ctx = null;
+                var isMuted = false;
+
+                function init() {
+                    if (!ctx) {
+                        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (AudioCtx) ctx = new AudioCtx();
+                    }
+                    if (ctx && ctx.state === "suspended") ctx.resume();
+                }
+
+                return {
+                    init: init,
+                    setMuted: function (m) { isMuted = m; },
+                    playTap: function () {
+                        if (isMuted) return;
+                        init();
+                        if (!ctx) return;
+                        try {
+                            var osc = ctx.createOscillator();
+                            var gain = ctx.createGain();
+                            osc.type = "sine";
+                            var now = ctx.currentTime;
+                            osc.frequency.setValueAtTime(540, now);
+                            osc.frequency.exponentialRampToValueAtTime(220, now + 0.08);
+                            gain.gain.setValueAtTime(0.18, now);
+                            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+                            osc.start(now);
+                            osc.stop(now + 0.08);
+                        } catch (e) { }
+                    },
+                    playUnlock: function () {
+                        if (isMuted) return;
+                        init();
+                        if (!ctx) return;
+                        try {
+                            var notes = [523.25, 659.25, 783.99, 1046.5];
+                            var now = ctx.currentTime;
+                            notes.forEach(function (freq, i) {
+                                var osc = ctx.createOscillator();
+                                var gain = ctx.createGain();
+                                osc.type = "triangle";
+                                osc.frequency.setValueAtTime(freq, now + i * 0.07);
+                                gain.gain.setValueAtTime(0.15, now + i * 0.07);
+                                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
+                                osc.connect(gain);
+                                gain.connect(ctx.destination);
+                                osc.start(now + i * 0.07);
+                                osc.stop(now + i * 0.07 + 0.25);
+                            });
+                        } catch (e) { }
+                    }
+                };
+            })();
+
+            /* --- YouTube Audio Player Engine --- */
+            var YouTubeAudioPlayer = (function () {
+                var player = null;
+                var isReady = false;
+                var isMuted = false;
+                var pendingTrackId = null;
+                var isPlaying = false;
+
+                // Load YouTube IFrame API
+                var tag = document.createElement("script");
+                tag.src = "https://www.youtube.com/iframe_api";
+                var firstScriptTag = document.getElementsByTagName("script")[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                window.onYouTubeIframeAPIReady = function () {
+                    player = new YT.Player("ytPlayer", {
+                        height: "100",
+                        width: "100",
+                        playerVars: {
+                            autoplay: 0,
+                            controls: 0,
+                            disablekb: 1,
+                            fs: 0,
+                            modestbranding: 1,
+                            playsinline: 1,
+                            rel: 0
+                        },
+                        events: {
+                            onReady: function () {
+                                isReady = true;
+                                if (pendingTrackId) {
+                                    play(pendingTrackId);
+                                    pendingTrackId = null;
+                                }
+                            },
+                            onStateChange: function (e) {
+                                if (e.data === YT.PlayerState.PLAYING) {
+                                    isPlaying = true;
+                                    discEl.classList.remove("paused");
+                                    playPauseBtnEl.textContent = "⏸";
+                                } else if (e.data === YT.PlayerState.PAUSED) {
+                                    isPlaying = false;
+                                    discEl.classList.add("paused");
+                                    playPauseBtnEl.textContent = "▶";
+                                } else if (e.data === YT.PlayerState.ENDED) {
+                                    nextTrack();
+                                }
+                            }
+                        }
+                    });
+                };
+
+                function play(videoId) {
+                    if (!isReady || !player) {
+                        pendingTrackId = videoId;
+                        return;
+                    }
+                    try {
+                        player.loadVideoById({
+                            videoId: videoId,
+                            startSeconds: 0
+                        });
+                        if (isMuted) player.mute();
+                        else player.unMute();
+                        player.playVideo();
+                        isPlaying = true;
+                    } catch (e) { }
+                }
+
+                function pause() {
+                    if (player && player.pauseVideo) {
+                        try {
+                            player.pauseVideo();
+                            isPlaying = false;
+                        } catch (e) { }
+                    }
+                }
+
+                function toggle(videoId) {
+                    if (!player || !isReady) {
+                        play(videoId);
+                        return;
+                    }
+                    try {
+                        var s = player.getPlayerState();
+                        if (s === YT.PlayerState.PLAYING) {
+                            pause();
+                        } else {
+                            player.playVideo();
+                            isPlaying = true;
+                        }
+                    } catch (e) {
+                        play(videoId);
+                    }
+                }
+
+                function toggleMute() {
+                    isMuted = !isMuted;
+                    SoundEffects.setMuted(isMuted);
+                    if (player && player.mute && player.unMute) {
+                        try {
+                            if (isMuted) player.mute();
+                            else player.unMute();
+                        } catch (e) { }
+                    }
+                    return isMuted;
+                }
+
+                return {
+                    play: play,
+                    pause: pause,
+                    toggle: toggle,
+                    toggleMute: toggleMute,
+                    isPlaying: function () { return isPlaying; },
+                    isMuted: function () { return isMuted; }
+                };
+            })();
+
+            function defaultState() {
+                return {
+                    energy: 0,
+                    owned: {
+                        snacks: false,
+                        music1: false,
+                        music2: false,
+                        music3: false,
+                        music4: false,
+                        music5: false
+                    },
+                    trackIndex: 0
+                };
+            }
+
+            function loadState() {
+                try {
+                    var raw = window.localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return defaultState();
+                    var parsed = JSON.parse(raw);
+                    var base = defaultState();
+                    return {
+                        energy: typeof parsed.energy === "number" ? parsed.energy : base.energy,
+                        owned: Object.assign(base.owned, parsed.owned || {}),
+                        trackIndex: typeof parsed.trackIndex === "number" ? parsed.trackIndex : base.trackIndex
+                    };
+                } catch (err) {
+                    return defaultState();
+                }
+            }
+
+            function saveState() {
+                try {
+                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                } catch (err) {
+                    /* localStorage unavailable */
+                }
+            }
+
+            var state = loadState();
+            var dialogueTimer = null;
+
+            var energyValueEl = document.getElementById("energyValue");
+            var characterEl = document.getElementById("character");
+            var stageEl = document.querySelector(".stage");
+            var dialogueEl = document.getElementById("dialogue");
+            var unlocksEl = document.getElementById("unlocks");
+            var discWidgetEl = document.getElementById("discWidget");
+            var discEl = document.getElementById("disc");
+            var trackTitleEl = document.getElementById("trackTitle");
+            var trackArtistEl = document.getElementById("trackArtist");
+            var playPauseBtnEl = document.getElementById("playPauseBtn");
+            var nextTrackBtnEl = document.getElementById("nextTrackBtn");
+            var soundToggleBtnEl = document.getElementById("soundToggleBtn");
+
+            function pick(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function showDialogue(text) {
+                dialogueEl.textContent = text;
+                dialogueEl.classList.add("visible");
+                window.clearTimeout(dialogueTimer);
+                dialogueTimer = window.setTimeout(function () {
+                    dialogueEl.classList.remove("visible");
+                }, 2800);
+            }
+
+            function spawnFloatText(text) {
+                var span = document.createElement("span");
+                span.className = "float-text";
+                span.textContent = text;
+                span.style.left = (46 + (Math.random() * 20 - 10)) + "%";
+                stageEl.appendChild(span);
+                span.addEventListener("animationend", function () {
+                    span.remove();
+                });
+            }
+
+            function renderEnergy() {
+                energyValueEl.textContent = String(state.energy);
+            }
+
+            function renderUnlocks() {
+                var cards = unlocksEl.querySelectorAll(".unlock-card");
+                cards.forEach(function (card) {
+                    var id = card.getAttribute("data-id");
+                    var cfg = UNLOCKS.filter(function (u) { return u.id === id; })[0];
+                    if (!cfg) return;
+                    var isOwned = !!state.owned[id];
+                    var canAfford = state.energy >= cfg.cost;
+                    card.classList.toggle("owned", isOwned);
+                    card.disabled = isOwned || !canAfford;
+                    var statusEl = card.querySelector(".unlock-status");
+                    statusEl.textContent = isOwned ? "Owned" : (cfg.cost + " energy");
+                });
+            }
+
+            function getUnlockedTracks() {
+                return TRACKS.filter(function (t) {
+                    return !!state.owned[t.id];
+                });
+            }
+
+            function renderDisc() {
+                var unlocked = getUnlockedTracks();
+                var isVisible = unlocked.length > 0;
+                discWidgetEl.classList.toggle("visible", isVisible);
+                if (!isVisible) {
+                    YouTubeAudioPlayer.pause();
+                    return;
+                }
+
+                var currentTrack = TRACKS[state.trackIndex % TRACKS.length];
+                if (!state.owned[currentTrack.id]) {
+                    currentTrack = unlocked[0];
+                    state.trackIndex = TRACKS.indexOf(currentTrack);
+                    saveState();
+                }
+                trackTitleEl.textContent = currentTrack.title;
+                trackArtistEl.textContent = currentTrack.artist;
+
+                var playing = YouTubeAudioPlayer.isPlaying();
+                discEl.classList.toggle("paused", !playing);
+                playPauseBtnEl.textContent = playing ? "⏸" : "▶";
+            }
+
+            function render() {
+                renderEnergy();
+                renderUnlocks();
+                renderDisc();
+            }
+
+            function tap() {
+                state.energy += 1;
+                saveState();
+                render();
+                characterEl.classList.remove("tapped");
+                void characterEl.getBoundingClientRect();
+                characterEl.classList.add("tapped");
+                spawnFloatText("+1");
+                SoundEffects.playTap();
+            }
+
+            function unlock(id) {
+                var cfg = UNLOCKS.filter(function (u) { return u.id === id; })[0];
+                if (!cfg || state.owned[id] || state.energy < cfg.cost) return;
+                state.energy -= cfg.cost;
+                state.owned[id] = true;
+
+                // If it's a music track, switch and start playing that real YouTube track immediately
+                var trackObjIndex = TRACKS.findIndex(function (t) { return t.id === id; });
+                if (trackObjIndex !== -1) {
+                    state.trackIndex = trackObjIndex;
+                    YouTubeAudioPlayer.play(TRACKS[state.trackIndex].videoId);
+                }
+
+                saveState();
+                render();
+                SoundEffects.playUnlock();
+                showDialogue(pick(cfg.dialogues));
+            }
+
+            function nextTrack() {
+                var unlocked = getUnlockedTracks();
+                if (unlocked.length === 0) return;
+
+                var currentTrack = TRACKS[state.trackIndex % TRACKS.length];
+                var currentIndexInUnlocked = unlocked.indexOf(currentTrack);
+                var nextUnlocked = unlocked[(currentIndexInUnlocked + 1) % unlocked.length];
+                state.trackIndex = TRACKS.indexOf(nextUnlocked);
+
+                saveState();
+                YouTubeAudioPlayer.play(nextUnlocked.videoId);
+                render();
+
+                discEl.classList.remove("pulse");
+                void discEl.getBoundingClientRect();
+                discEl.classList.add("pulse");
+                showDialogue("Now playing: " + nextUnlocked.title);
+            }
+
+            function togglePlayPause() {
+                var unlocked = getUnlockedTracks();
+                if (unlocked.length === 0) return;
+                var currentTrack = TRACKS[state.trackIndex % TRACKS.length];
+                YouTubeAudioPlayer.toggle(currentTrack.videoId);
+                render();
+            }
+
+            function toggleMute() {
+                var muted = YouTubeAudioPlayer.toggleMute();
+                soundToggleBtnEl.textContent = muted ? "🔇" : "🔊";
+            }
+
+            characterEl.addEventListener("click", function () {
+                SoundEffects.init();
+                tap();
+            });
+            characterEl.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    SoundEffects.init();
+                    tap();
+                }
+            });
+
+            unlocksEl.querySelectorAll(".unlock-card").forEach(function (card) {
+                card.addEventListener("click", function () {
+                    SoundEffects.init();
+                    unlock(card.getAttribute("data-id"));
+                });
+            });
+
+            discEl.addEventListener("click", togglePlayPause);
+            discEl.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    togglePlayPause();
+                }
+            });
+
+            playPauseBtnEl.addEventListener("click", togglePlayPause);
+            nextTrackBtnEl.addEventListener("click", nextTrack);
+            soundToggleBtnEl.addEventListener("click", toggleMute);
+
+            // Global user interaction initializer
+            document.addEventListener("click", function () {
+                SoundEffects.init();
+            }, { once: true });
+
+            render();
+        })();
+    </script>
+
+</body>
+
+</html>
